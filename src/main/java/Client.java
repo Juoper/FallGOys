@@ -8,6 +8,7 @@ public class Client {
 
     PrintWriter pr = new PrintWriter(s.getOutputStream());
     pr.println("test");
+    pr.flush();
 
   }
 }
