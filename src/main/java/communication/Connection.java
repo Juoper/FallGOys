@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
  * Contains a socket and streams on it. The class serves as a container for 'interfaces' to an
  * established connection.
  */
-public class Connection implements Closeable {
+public class Connection implements Closeable{
     public final Socket socket;
     private final ObjectInputStream inStream;
     private final ObjectOutputStream outStream;
@@ -36,6 +36,7 @@ public class Connection implements Closeable {
             close();
             throw new AssertionError(e);
         }
+
     }
 
     public void writeObject(Object object) throws IOException {
@@ -54,5 +55,6 @@ public class Connection implements Closeable {
     public boolean isSocketOpen() {
         return !socket.isClosed();
     }
+
 
 }

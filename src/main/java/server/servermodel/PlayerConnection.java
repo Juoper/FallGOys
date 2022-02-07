@@ -1,15 +1,17 @@
 package server.servermodel;
 
 import communication.Connection;
-import communication.messages.FirstConnect;
+import communication.messages.FirstContact;
+import communication.messages.FirstContactResponse;
 import communication.messages.Ping;
 
-import javax.management.ObjectName;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PlayerConnection implements Closeable {
 
@@ -36,16 +38,33 @@ public class PlayerConnection implements Closeable {
 
     }
 
+    /**
+     * reads and processes the first message send by the client
+     * First it checks if it's a FirstContact message and if so it checks if the playername is valid
+     * if one of them is wrong the server send back a response Code
+     * @throws IOException
+     */
     public void handleFirstContact() throws IOException {
-        ping(100);
-        Object firstContact = connection.readObject();
+        //ping(100); ping needs to be done
 
+        Object firstContact = connection.readObject();
         if (firstContact != null) {
-            if (firstContact instanceof FirstConnect){
-                player = new Player(((FirstConnect) firstContact).getPlayerName());
+            if (firstContact instanceof FirstContact){
+
+                FirstContact firstConnect = (FirstContact) firstContact;
+
+                if (validatePlayerName(firstConnect.getPlayerName())){
+                    writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.INVALID_NAME));
+                    return;
+                }
+                player = new Player(firstConnect.getPlayerName());
 
                 System.out.println("New Player Connected with the name: " + player.getPlayerName());
+
+                writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.SUCCESSFULL));
             }else{
+
+                writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.NO_MESSAGE));
                 System.out.println("no First Connect message was sent");
             }
         }
@@ -95,7 +114,6 @@ public class PlayerConnection implements Closeable {
     }
 
     public void ping(int time) throws IOException {
-
         new Thread(
                 () -> {
                     while (connected) {
@@ -117,6 +135,14 @@ public class PlayerConnection implements Closeable {
                     }
                 })
                 .start();
+    }
 
+    //maybe move to another class
+    public boolean validatePlayerName(String validate){
+
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(validate);
+
+        return m.find();
     }
 }

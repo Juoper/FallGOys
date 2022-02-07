@@ -13,8 +13,11 @@ public class ServerController {
                         connection.handleFirstContact();
                     } catch (Exception e) {
                         System.out.println("First contact failed.");
+                        e.printStackTrace();
                     }
                 })
                 .start();
     }
+
+
 }

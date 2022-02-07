@@ -1,9 +1,9 @@
 import communication.Connection;
-import communication.messages.FirstConnect;
+import communication.messages.FirstContact;
+import communication.messages.FirstContactResponse;
 import communication.messages.Ping;
 
 import java.io.*;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class Client {
@@ -17,13 +17,16 @@ public class Client {
 
     connection = new Connection(socket);
 
-    connection.writeObject(new FirstConnect("Jouper"));
+    connection.writeObject(new FirstContact("Jouper"));
 
     System.out.println("created connection");
 
-    Ping msg = (Ping) connection.readObject();
+    Object msg = connection.readObject();
 
-    System.out.println(msg.getLastPing());
+    if (msg instanceof FirstContactResponse){
+      FirstContactResponse response = (FirstContactResponse) msg;
+      System.out.println("Response Code: " + response.getResponseCode());
+    }
 
     connection.close();
 
