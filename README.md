@@ -1,2 +1,2 @@
 # FallGOys
-2D Game like people running
+Try to program a 2d mutliplayer parcour runner in java
