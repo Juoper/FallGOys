@@ -1,5 +1,6 @@
 package server;
 
+import server.servermodel.PlayerConnection;
 import server.servermodel.ServerController;
 
 import java.io.*;
@@ -53,4 +54,5 @@ public class ServerConnectionManager implements Closeable {
     public void close() throws IOException {
 
     }
+
 }

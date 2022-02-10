@@ -29,7 +29,6 @@ public class Connection implements Closeable{
     }
 
     public Object readObject() throws IOException {
-
         try {
             return inStream.readObject();
         } catch (ClassNotFoundException e) {

@@ -53,15 +53,19 @@ public class PlayerConnection implements Closeable {
 
                 FirstContact firstConnect = (FirstContact) firstContact;
 
-                if (validatePlayerName(firstConnect.getPlayerName())){
+                if (!validatePlayerName(firstConnect.getPlayerName())){
                     writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.INVALID_NAME));
-                    return;
+                }else{
+                    player = new Player(firstConnect.getPlayerName());
+                    serverController.players.add(player);
+
+                    System.out.println("New Player Connected with the name: " + player.getPlayerName());
+
+                    writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.SUCCESSFULL));
+
                 }
-                player = new Player(firstConnect.getPlayerName());
 
-                System.out.println("New Player Connected with the name: " + player.getPlayerName());
 
-                writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.SUCCESSFULL));
             }else{
 
                 writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.NO_MESSAGE));
@@ -138,11 +142,15 @@ public class PlayerConnection implements Closeable {
     }
 
     //maybe move to another class
+    //preferably ServerController
     public boolean validatePlayerName(String validate){
+        boolean isValid = false;
 
         Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(validate);
 
-        return m.find();
+        isValid = !m.find();
+        isValid = serverController.players.stream().noneMatch(player -> player.getPlayerName().equalsIgnoreCase(validate));
+        return isValid;
     }
 }
