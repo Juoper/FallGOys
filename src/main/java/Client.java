@@ -1,15 +1,15 @@
+import client.discordIntegration.sdkMain;
 import communication.Connection;
-import communication.messages.FirstContact;
-import communication.messages.FirstContactResponse;
-import communication.messages.Ping;
 
 import java.io.*;
-import java.net.Socket;
 
 public class Client {
   private static Connection connection;
 
   public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
+
+    sdkMain sdkMain = new sdkMain();
+/*
     System.out.println("new client");
     Socket socket = new Socket("localhost", 4999);
 
@@ -29,6 +29,8 @@ public class Client {
     }
 
     connection.close();
+
+ */
 
 
 
