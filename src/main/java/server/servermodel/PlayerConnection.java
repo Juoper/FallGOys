@@ -38,12 +38,7 @@ public class PlayerConnection implements Closeable {
 
     }
 
-    /**
-     * reads and processes the first message send by the client
-     * First it checks if it's a FirstContact message and if so it checks if the playername is valid
-     * if one of them is wrong the server send back a response Code
-     * @throws IOException
-     */
+    //move this to the serverCXontroller? becuase it handles everything?
     public void handleFirstContact() throws IOException {
         //ping(100); ping needs to be done
 
@@ -55,6 +50,7 @@ public class PlayerConnection implements Closeable {
 
                 if (!validatePlayerName(firstConnect.getPlayerName())){
                     writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.INVALID_NAME));
+
                 }else{
                     player = new Player(firstConnect.getPlayerName());
                     serverController.players.add(player);
