@@ -21,7 +21,6 @@ public class PlayerConnection implements Closeable {
     private final ExecutorService writingPool;
     private boolean connected;
     private boolean receivedPong;
-    private boolean firstConnection;
     private Player player;
 
     public Socket socket;
@@ -33,14 +32,12 @@ public class PlayerConnection implements Closeable {
         readingPool = Executors.newSingleThreadExecutor();
         writingPool = Executors.newSingleThreadExecutor();
         connected = true;
-        firstConnection = true;
         this.socket = socket;
 
     }
 
     //move this to the serverCXontroller? becuase it handles everything?
     public void handleFirstContact() throws IOException {
-        //ping(100); ping needs to be done
 
         Object firstContact = connection.readObject();
         if (firstContact != null) {
@@ -68,19 +65,35 @@ public class PlayerConnection implements Closeable {
                 System.out.println("no First Connect message was sent");
             }
         }
-        firstConnection = false;
 
+        new Thread(
+                () -> {
+                    try {
+                        ping(5000);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .start();
 
         startListeningForMessages();
     }
 
-    /** Starts a Thread to listen for incoming messages from the client. */
+    private void handleContact(final Object message) throws IOException {
+        if (message instanceof Ping){
+            receivedPong = true;
+        }
+    }
+
+
+        /** Starts a Thread to listen for incoming messages from the client. */
     public void startListeningForMessages() {
         readingPool.execute(
                 () -> {
                     while (connected) {
                         try {
                             awaitMessages();
+
                         } catch (IOException | InterruptedException e) {
                             connected = false;
                         }
@@ -89,7 +102,8 @@ public class PlayerConnection implements Closeable {
     }
 
     private void awaitMessages() throws IOException, InterruptedException {
-        connection.readObject();
+        Object msg = connection.readObject();
+        handleContact(msg);
     }
 
 
@@ -103,38 +117,25 @@ public class PlayerConnection implements Closeable {
         });
     }
 
-    @Override
-    public void close() throws IOException {
-        if (connection.isSocketOpen()) {
-            connected = false;
-            connection.close();
-            readingPool.shutdown();
-            writingPool.shutdown();
-        }
-    }
-
     public void ping(int time) throws IOException {
-        new Thread(
-                () -> {
-                    while (connected) {
-                        receivedPong  = false;
+        while (connected) {
+            receivedPong  = false;
+            writeMessage(new Ping(123));
+            try {
+                Thread.sleep(time);
+                if (connected && !receivedPong) {
+                    System.out.println("closing");
 
-                        writeMessage(new Ping(123));
-                        try {
-                            Thread.sleep(time);
-                            if (connected && !receivedPong) {
-                                close();
-                            }else if(receivedPong){
-                                System.out.println("recievedPong from: " + player.getPlayerName());
-                            }
-                        } catch (InterruptedException | IOException e) {
-                            e.printStackTrace();
-                        }
+                    close();
+                }else if(receivedPong){
+                    System.out.println("recievedPong from: " + player.getPlayerName());
+                }
+            } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
+            }
 
 
-                    }
-                })
-                .start();
+        }
     }
 
     //maybe move to another class
@@ -148,5 +149,16 @@ public class PlayerConnection implements Closeable {
         isValid = !m.find();
         isValid = serverController.players.stream().noneMatch(player -> player.getPlayerName().equalsIgnoreCase(validate));
         return isValid;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (connection.isSocketOpen()) {
+            serverController.players.remove(player);
+            connected = false;
+            connection.close();
+            readingPool.shutdown();
+            writingPool.shutdown();
+        }
     }
 }
