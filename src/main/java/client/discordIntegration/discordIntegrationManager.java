@@ -2,6 +2,7 @@ package client.discordIntegration;
 
 import client.MainClient;
 import client.connection.ClientConnectionManager;
+import client.discordIntegration.richPresenceStates.InLobby;
 import communication.messages.Ping;
 import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
@@ -76,6 +77,7 @@ public class discordIntegrationManager extends DiscordEventHandler {
 
     @Override
     public void onActivityJoin(String secret) {
+
     }
 
     public void updatePresence(IrichPresenceStates object){
