@@ -52,23 +52,28 @@ public class discordIntegrationManager extends DiscordEventHandler {
             activity.assets().setLargeImage("ingame");
 
             // Setting a join secret and a party ID causes an "Ask to Join" button to appear
-            //activity.party().setID("Party1123!");
-            //activity.secrets().setJoinSecret("Join!");
+            activity.party().setID("Party1123!");
+            activity.secrets().setJoinSecret("Join!");
 
             // Finally, update the current activity to our activity
             core.activityManager().updateActivity(activity);
 
 
             // Run callbacks forever
-            while (true) {
-                core.runCallbacks();
-                try {
-                    // Sleep a bit to save CPU
-                    Thread.sleep(16);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            new Thread(
+                    () -> {
+                        while (true) {
+                            core.runCallbacks();
+                            try {
+                                // Sleep a bit to save CPU
+                                Thread.sleep(16);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    })
+                    .start();
+
 
         }
 

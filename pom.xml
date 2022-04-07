@@ -24,8 +24,19 @@
         <dependency>
             <groupId>com.github.JnCrMx</groupId>
             <artifactId>discord-game-sdk4j</artifactId>
-            <version>0.5.4</version>
+            <version>0.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>18</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>17.0.1</version>
         </dependency>
     </dependencies>
+
 
 </project>

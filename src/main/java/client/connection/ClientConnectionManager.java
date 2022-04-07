@@ -10,18 +10,18 @@ public class ClientConnectionManager {
 
 
 
-    private final ClientConnection clientConnection;
+    private final ServerConnection serverConnection;
 
     public ClientConnectionManager(String serverIp, String playerName) throws IOException {
         Socket socket = new Socket(serverIp, 4999);
 
-        clientConnection = new ClientConnection(socket, this);
+        serverConnection = new ServerConnection(socket, this);
 
 
         new Thread(
                 () -> {
                     try {
-                        clientConnection.handleFirstContact(playerName);
+                        serverConnection.handleFirstContact(playerName);
                     } catch (Exception e) {
                         System.out.println("First contact failed.");
                         e.printStackTrace();
@@ -30,22 +30,24 @@ public class ClientConnectionManager {
                 .start();
     }
 
-    public ClientConnection getClientConnection() {
-        return clientConnection;
-    }
 
 
     public void handleContact(Object msg) throws IOException {
 
-        if (msg instanceof FirstContactResponse){
-            FirstContactResponse response = (FirstContactResponse) msg;
+        if (msg instanceof FirstContactResponse response){
 
             System.out.println("Response Code: " + response.getResponseCode());
         }else if (msg instanceof Ping){
 
-            System.out.println("received ping");
-            clientConnection.writeMessage(new Ping(100));
+            //System.out.println("received ping");
+            serverConnection.writeMessage(new Ping(100));
         }
+    }
+
+
+    public void writeMessage(Object object){
+        serverConnection.writeMessage(object);
+
     }
 
 }

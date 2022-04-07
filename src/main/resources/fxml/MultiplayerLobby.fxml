@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.gui.MultiplayerLobbyController">
+   <children>
+      <Button alignment="TOP_LEFT" layoutX="457.0" layoutY="293.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="85.0" text="Start Game" onAction="#onStartGameButtonClick"/>
+      <ComboBox fx:id="availableGamesCollection" layoutX="425.0" layoutY="253.0" prefWidth="150.0" promptText="Select Game Mode">
+         <items>
+         <FXCollections fx:factory="observableArrayList">
+            <String fx:value="Tic Tac Toe"/>
+            <String fx:value="Two"/>
+            <String fx:value="One"/>
+         </FXCollections>
+      </items>
+      </ComboBox>
+
+   </children>
+</AnchorPane>

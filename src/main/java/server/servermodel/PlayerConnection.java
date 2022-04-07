@@ -4,6 +4,8 @@ import communication.Connection;
 import communication.messages.FirstContact;
 import communication.messages.FirstContactResponse;
 import communication.messages.Ping;
+import communication.messages.games.newGameRequest;
+
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -41,12 +43,11 @@ public class PlayerConnection implements Closeable {
 
         Object firstContact = connection.readObject();
         if (firstContact != null) {
-            if (firstContact instanceof FirstContact){
-
-                FirstContact firstConnect = (FirstContact) firstContact;
+            if (firstContact instanceof FirstContact firstConnect){
 
                 if (!validatePlayerName(firstConnect.getPlayerName())){
                     writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.INVALID_NAME));
+                    connection.close();
 
                 }else{
                     player = new Player(firstConnect.getPlayerName());
@@ -69,7 +70,7 @@ public class PlayerConnection implements Closeable {
         new Thread(
                 () -> {
                     try {
-                        ping(5000);
+                        ping(50);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -80,14 +81,18 @@ public class PlayerConnection implements Closeable {
     }
 
     private void handleContact(final Object message) throws IOException {
+
         if (message instanceof Ping){
             receivedPong = true;
+        }else if (message instanceof newGameRequest){
+            serverController.handleNewGameRequest(message, player);
         }
     }
 
 
         /** Starts a Thread to listen for incoming messages from the client. */
     public void startListeningForMessages() {
+        System.out.println("test");
         readingPool.execute(
                 () -> {
                     while (connected) {
@@ -128,7 +133,7 @@ public class PlayerConnection implements Closeable {
 
                     close();
                 }else if(receivedPong){
-                    System.out.println("recievedPong from: " + player.getPlayerName());
+                    //System.out.println("recievedPong from: " + player.getPlayerName());
                 }
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();

@@ -2,15 +2,13 @@ package client.connection;
 
 import communication.Connection;
 import communication.messages.FirstContact;
-import communication.messages.FirstContactResponse;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ClientConnection {
+public class ServerConnection {
 
     private final Connection connection;
     private final ClientConnectionManager connectionManager;
@@ -19,7 +17,7 @@ public class ClientConnection {
     private boolean connected;
 
 
-    public ClientConnection(Socket socket, ClientConnectionManager connectionManager) throws IOException {
+    public ServerConnection(Socket socket, ClientConnectionManager connectionManager) throws IOException {
 
         connection = new Connection(socket);
         this.connectionManager = connectionManager;
