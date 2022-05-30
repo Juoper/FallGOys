@@ -19,6 +19,7 @@ public class ServerConnectionManager implements Closeable {
 
         this.serverSocket = new ServerSocket(port);
         this.serverController = new ServerController();
+
         executorService = Executors.newFixedThreadPool(maxThreads);
     }
 

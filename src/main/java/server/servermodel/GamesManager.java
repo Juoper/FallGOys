@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class GamesManager extends HashMap<Integer, Game> {
 
-    private static final int MAX_GAME_ID = 10000000;
+    private static final int MAX_GAME_ID = 10000;
     private static final int MAX_PLAYERS = 5;
 
 

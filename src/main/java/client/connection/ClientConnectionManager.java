@@ -1,14 +1,18 @@
 package client.connection;
 
+import communication.messages.CreateLobbyRequest;
 import communication.messages.FirstContactResponse;
+import communication.messages.LobbyUpdate;
 import communication.messages.Ping;
+import server.servermodel.Lobby;
+import server.servermodel.LobbyManager;
 
 import java.io.IOException;
 import java.net.Socket;
 
 public class ClientConnectionManager {
 
-
+    public Lobby lobby;
 
     private final ServerConnection serverConnection;
 
@@ -17,30 +21,29 @@ public class ClientConnectionManager {
 
         serverConnection = new ServerConnection(socket, this);
 
-
-        new Thread(
-                () -> {
-                    try {
-                        serverConnection.handleFirstContact(playerName);
-                    } catch (Exception e) {
-                        System.out.println("First contact failed.");
-                        e.printStackTrace();
-                    }
-                })
-                .start();
+        try {
+            serverConnection.handleFirstContact(playerName);
+        } catch (Exception e) {
+            System.out.println("First contact failed.");
+            e.printStackTrace();
+        }
     }
 
+    public void handleContact(Object message) throws IOException {
 
-
-    public void handleContact(Object msg) throws IOException {
-
-        if (msg instanceof FirstContactResponse response){
+        if (message instanceof FirstContactResponse response){
 
             System.out.println("Response Code: " + response.getResponseCode());
-        }else if (msg instanceof Ping){
+
+            serverConnection.connected = true;
+
+
+        }else if (message instanceof Ping){
 
             //System.out.println("received ping");
             serverConnection.writeMessage(new Ping(100));
+        }else if (message instanceof LobbyUpdate msg){
+            System.out.println("lobby update: " + msg.getLobbyID());
         }
     }
 

@@ -1,13 +1,12 @@
 package client.gui;
 
 import client.MainClient;
-import communication.messages.Ping;
 import communication.messages.games.tictactoe.newTicTacToeRequest;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 
 import java.io.IOException;
@@ -16,6 +15,10 @@ public class MultiplayerLobbyController {
 
     @FXML
     ComboBox availableGamesCollection;
+    @FXML
+    Button LobbyIDButton;
+
+
     public void onStartGameButtonClick(ActionEvent event) throws IOException {
         String selection = (String) availableGamesCollection.getValue();
 
@@ -31,6 +34,13 @@ public class MultiplayerLobbyController {
         }
 
 
+
+    }
+
+    public void onLobbyIDButtonPressed(ActionEvent event) {
+        LobbyIDButton.setText("Lobby ID: " + MainClient.connectionManager);
+
+        System.out.println(MainClient.connectionManager.lobby.getLobbyID());
 
     }
 }

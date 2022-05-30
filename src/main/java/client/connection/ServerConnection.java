@@ -14,7 +14,9 @@ public class ServerConnection {
     private final ClientConnectionManager connectionManager;
     private final ExecutorService readingPool;
     private final ExecutorService writingPool;
-    private boolean connected;
+    public boolean connected;
+
+    private static final int SERVER_RESPONSE_TIMEOUT = 5000;
 
 
     public ServerConnection(Socket socket, ClientConnectionManager connectionManager) throws IOException {
@@ -23,18 +25,28 @@ public class ServerConnection {
         this.connectionManager = connectionManager;
         readingPool = Executors.newSingleThreadExecutor();
         writingPool = Executors.newSingleThreadExecutor();
-        connected = true;
-
 
     }
 
     public void handleFirstContact(String playerName) throws IOException {
-        connection.writeObject(new FirstContact("Jouper"));
+        connection.writeObject(new FirstContact(playerName));
+
+
+        long t = System.currentTimeMillis();
+        long end = t + 5000;
+
+        while (System.currentTimeMillis() < end && !connected) {
+            try {
+                awaitMessages();
+                System.out.println(connected);
+            } catch (IOException | InterruptedException e) {
+                connected = false;
+            }
+        }
+
 
         startListeningForMessages();
     }
-
-
 
     public void startListeningForMessages() {
         readingPool.execute(

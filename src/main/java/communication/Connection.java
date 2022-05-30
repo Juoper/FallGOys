@@ -1,7 +1,5 @@
 package communication;
 
-import communication.messages.Ping;
-
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;

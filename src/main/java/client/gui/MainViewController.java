@@ -4,12 +4,16 @@ package client.gui;
 import client.MainClient;
 import client.connection.ClientConnectionManager;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 
 import java.io.IOException;
 
 public class MainViewController {
+
+
     public void onMultiplayerButtonClick(ActionEvent event) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/MultiplayerLobby.fxml"));
 
@@ -18,6 +22,7 @@ public class MainViewController {
         MainView.stage.setScene(scene);
 
         MainClient.connectionManager = new ClientConnectionManager("localhost", "Jouper");
+
 
     }
 

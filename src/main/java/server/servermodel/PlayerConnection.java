@@ -1,9 +1,7 @@
 package server.servermodel;
 
 import communication.Connection;
-import communication.messages.FirstContact;
-import communication.messages.FirstContactResponse;
-import communication.messages.Ping;
+import communication.messages.*;
 import communication.messages.games.newGameRequest;
 
 
@@ -12,8 +10,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PlayerConnection implements Closeable {
 
@@ -23,7 +19,7 @@ public class PlayerConnection implements Closeable {
     private final ExecutorService writingPool;
     private boolean connected;
     private boolean receivedPong;
-    private Player player;
+    public Player player;
 
     public Socket socket;
 
@@ -38,34 +34,23 @@ public class PlayerConnection implements Closeable {
 
     }
 
-    //move this to the serverCXontroller? becuase it handles everything?
-    public void handleFirstContact() throws IOException {
-
-        Object firstContact = connection.readObject();
-        if (firstContact != null) {
-            if (firstContact instanceof FirstContact firstConnect){
-
-                if (!validatePlayerName(firstConnect.getPlayerName())){
-                    writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.INVALID_NAME));
-                    connection.close();
-
-                }else{
-                    player = new Player(firstConnect.getPlayerName());
-                    serverController.players.add(player);
-
-                    System.out.println("New Player Connected with the name: " + player.getPlayerName());
-
-                    writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.SUCCESSFULL));
-
-                }
+    //move this to the serverController? because it handles everything?
 
 
-            }else{
+    private void handleContact(final Object message) throws IOException {
 
-                writeMessage(new FirstContactResponse(FirstContactResponse.ResponseCodes.NO_MESSAGE));
-                System.out.println("no First Connect message was sent");
-            }
+        if (message instanceof Ping){
+            receivedPong = true;
+        }else if (message instanceof newGameRequest){
+            serverController.handleNewGameRequest(message, player);
+        }else if (message instanceof JoinLobbyRequest msg){
+            serverController.lobbyManager.joinLobbyRequest(player, msg.getLobbyID());
+        }else if (message instanceof CreateLobbyRequest){
+            serverController.lobbyManager.createLobbyRequest(player);
         }
+    }
+
+    public void afterFirstContact(){
 
         new Thread(
                 () -> {
@@ -78,15 +63,8 @@ public class PlayerConnection implements Closeable {
                 .start();
 
         startListeningForMessages();
-    }
 
-    private void handleContact(final Object message) throws IOException {
 
-        if (message instanceof Ping){
-            receivedPong = true;
-        }else if (message instanceof newGameRequest){
-            serverController.handleNewGameRequest(message, player);
-        }
     }
 
 
@@ -145,16 +123,7 @@ public class PlayerConnection implements Closeable {
 
     //maybe move to another class
     //preferably ServerController
-    public boolean validatePlayerName(String validate){
-        boolean isValid = false;
 
-        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(validate);
-
-        isValid = !m.find();
-        isValid = serverController.players.stream().noneMatch(player -> player.getPlayerName().equalsIgnoreCase(validate));
-        return isValid;
-    }
 
     @Override
     public void close() throws IOException {
@@ -165,5 +134,9 @@ public class PlayerConnection implements Closeable {
             readingPool.shutdown();
             writingPool.shutdown();
         }
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 }
